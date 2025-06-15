@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class UserDto {
-    //private Long id;
+    private Long id;
     private String name;
     private String email;
 }
