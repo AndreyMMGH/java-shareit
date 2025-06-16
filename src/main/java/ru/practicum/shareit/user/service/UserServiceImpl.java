@@ -27,4 +27,14 @@ public class UserServiceImpl implements UserService {
     public User createUser(User user) {
         return userStorage.createUser(user);
     }
+
+    @Override
+    public User updateUser(User updateUser) {
+        return userStorage.updateUser(updateUser);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        userStorage.deleteUser(id);
+    }
 }
