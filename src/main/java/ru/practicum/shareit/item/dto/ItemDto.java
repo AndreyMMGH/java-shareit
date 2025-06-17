@@ -1,22 +1,19 @@
 package ru.practicum.shareit.item.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.User;
+import org.springframework.lang.Nullable;
 
-/**
- * TODO Sprint add-controllers.
- */
 @AllArgsConstructor
 @Data
-@Slf4j
 public class ItemDto {
-    //private Long id;
+    private Long id;
+    @NotBlank(message = "Имя не может быть null")
     private String name;
+    @NotBlank(message = "Описание не может быть null")
     private String description;
+    @NotNull(message = "Поле доступ не может быть null")
     private Boolean available;
-    //private User owner;
-    private Long request;
 }
