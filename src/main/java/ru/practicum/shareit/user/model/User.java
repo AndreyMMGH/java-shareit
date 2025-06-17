@@ -1,15 +1,10 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
-/**
- * TODO Sprint add-controllers.
- */
 @AllArgsConstructor
 @Data
-@Slf4j
 public class User {
     private Long id;
     private String name;

@@ -1,8 +1,9 @@
-package ru.practicum.shareit.user.storage;
+package ru.practicum.shareit.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
@@ -30,6 +31,19 @@ public class UserStorageImpl implements UserStorage {
 
     @Override
     public User updateUser(User updateUser) {
+        if (!users.containsKey(updateUser.getId())) {
+            log.warn("Обновляемый пользователь не найден");
+            throw new NotFoundException("Обновляемый пользователь не найден");
+        } else {
+            User oldUser = users.get(updateUser.getId());
+            if (updateUser.getName() == null) {
+                updateUser.setName(oldUser.getName());
+            }
+            if (updateUser.getEmail() == null) {
+                updateUser.setEmail(oldUser.getEmail());
+            }
+        }
+
         users.put(updateUser.getId(), updateUser);
         return updateUser;
     }

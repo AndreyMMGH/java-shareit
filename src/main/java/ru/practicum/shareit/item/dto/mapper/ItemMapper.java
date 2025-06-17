@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.dto.mapper;
 import lombok.AllArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 @AllArgsConstructor
 public class ItemMapper {
