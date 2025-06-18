@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
-    public void validateUser(User user, Long userId) {
+    private void validateUser(User user, Long userId) {
         if (user == null) {
             log.warn("Пользователь с данным id {} не найден", userId);
             throw new NotFoundException("Пользователь с данным id: " + userId + " не найден");

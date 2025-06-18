@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto createUser(UserDto userDto) {
-        validateEmail(userDto);
+        validateEmail(null, userDto);
 
         return UserMapper.toUserDto(userStorage.createUser(UserMapper.toUser(userDto)));
     }
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("Пользователь с данным id " + id + " не найден.");
         }
 
-        validateEmail(updateUserDto);
+        validateEmail(id, updateUserDto);
 
         return UserMapper.toUserDto(userStorage.updateUser(UserMapper.toUser(id, updateUserDto)));
     }
@@ -65,9 +65,10 @@ public class UserServiceImpl implements UserService {
         userStorage.deleteUser(id);
     }
 
-    public void validateEmail(UserDto userDto) {
+    private void validateEmail(Long id, UserDto userDto) {
         if (userStorage.findAllUsers().stream()
-                .anyMatch(viewedUser -> Objects.equals(viewedUser.getEmail(), userDto.getEmail()))) {
+                .anyMatch(viewedUser -> Objects.equals(viewedUser.getEmail(), userDto.getEmail())
+                        && !Objects.equals(viewedUser.getId(), id))) {
             log.warn("Данная электронная почта {} уже существует", userDto.getEmail());
             throw new InternalServerException("Данная электронная почта уже существует");
         }
