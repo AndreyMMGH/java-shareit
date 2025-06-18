@@ -28,7 +28,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
         User user = userStorage.findUserById(userId);
-        ValidateUser(user, userId);
+        validateUser(user, userId);
 
         return ItemMapper.toItemDto(itemStorage.createItem(
                 ItemMapper.toItem(user, itemDto))
@@ -38,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
         User user = userStorage.findUserById(userId);
-        ValidateUser(user, userId);
+        validateUser(user, userId);
 
         if (!Objects.equals(userId, itemStorage.findItemById(itemId).getOwner().getId())) {
             log.warn("Внесение изменений доступно владельцу");
@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
-    public void ValidateUser(User user, Long userId) {
+    public void validateUser(User user, Long userId) {
         if (user == null) {
             log.warn("Пользователь с данным id {} не найден", userId);
             throw new NotFoundException("Пользователь с данным id: " + userId + " не найден");
