@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
  */
 @AllArgsConstructor
 @Data
-@Slf4j
 public class ItemRequest {
     private Long id;
     private String description;

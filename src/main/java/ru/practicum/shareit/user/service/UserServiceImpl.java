@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.dao.UserStorage;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,52 +22,54 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public List<User> findAllUsers() {
-        return userStorage.findAllUsers();
+    public List<UserDto> findAllUsers() {
+        return userStorage.findAllUsers().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User findUserById(Long id) {
+    public UserDto findUserById(Long id) {
         User user = userStorage.findUserById(id);
+
         if (user == null) {
             log.warn("Пользователь с данным id {} не найден", id);
             throw new NotFoundException("Пользователь с данным id: " + id + " не найден");
         }
-        return user;
+        return UserMapper.toUserDto(user);
     }
 
     @Override
-    public User createUser(UserDto userDto) {
-        if (userStorage.findAllUsers().stream()
-                .anyMatch(viewedUser -> Objects.equals(viewedUser.getEmail(), userDto.getEmail()))) {
-            log.warn("Данная электронная почта {} уже существует", userDto.getEmail());
-            throw new InternalServerException("Данная электронная почта уже существует");
-        }
+    public UserDto createUser(UserDto userDto) {
+        ValidateEmail(userDto);
 
-        return userStorage.createUser(UserMapper.toUser(userDto));
+        return UserMapper.toUserDto(userStorage.createUser(UserMapper.toUser(userDto)));
     }
 
     @Override
-    public User updateUser(Long id, UserDto updateUserDto) {
+    public UserDto updateUser(Long id, UserDto updateUserDto) {
         User existingUser = userStorage.findUserById(id);
+
         if (existingUser == null) {
             log.warn("Пользователь с id: {} не найден", id);
             throw new NotFoundException("Пользователь с данным id " + id + " не найден.");
         }
 
-        Optional<User> existingUserWithEmail = userStorage.findAllUsers().stream()
-                .filter(viewedUser -> Objects.equals(viewedUser.getEmail(), updateUserDto.getEmail()) && !Objects.equals(id, viewedUser.getId()))
-                .findAny();
-        if (existingUserWithEmail.isPresent()) {
-            log.warn("Пользователь с таким email уже существует");
-            throw new InternalServerException("Пользователь с таким email уже существует");
-        }
+        ValidateEmail(updateUserDto);
 
-        return userStorage.updateUser(UserMapper.toUser(id, updateUserDto));
+        return UserMapper.toUserDto(userStorage.updateUser(UserMapper.toUser(id, updateUserDto)));
     }
 
     @Override
     public void deleteUser(Long id) {
         userStorage.deleteUser(id);
+    }
+
+    public void ValidateEmail(UserDto userDto) {
+        if (userStorage.findAllUsers().stream()
+                .anyMatch(viewedUser -> Objects.equals(viewedUser.getEmail(), userDto.getEmail()))) {
+            log.warn("Данная электронная почта {} уже существует", userDto.getEmail());
+            throw new InternalServerException("Данная электронная почта уже существует");
+        }
     }
 }
