@@ -22,8 +22,8 @@ public class ItemMapper {
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                user,
-                null
+                user
+                //null
         );
     }
 
@@ -33,8 +33,8 @@ public class ItemMapper {
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                user,
-                null
+                user
+                //null
         );
     }
 }

@@ -8,10 +8,9 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.dao.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,23 +18,19 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
     public List<UserDto> findAllUsers() {
-        return userStorage.findAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto findUserById(Long id) {
-        User user = userStorage.findUserById(id);
+        User user = validateUser(id);
 
-        if (user == null) {
-            log.warn("Пользователь с данным id {} не найден", id);
-            throw new NotFoundException("Пользователь с данным id: " + id + " не найден");
-        }
         return UserMapper.toUserDto(user);
     }
 
@@ -43,34 +38,43 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         validateEmail(null, userDto);
 
-        return UserMapper.toUserDto(userStorage.createUser(UserMapper.toUser(userDto)));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
     }
 
     @Override
     public UserDto updateUser(Long id, UserDto updateUserDto) {
-        User existingUser = userStorage.findUserById(id);
-
-        if (existingUser == null) {
-            log.warn("Пользователь с id: {} не найден", id);
-            throw new NotFoundException("Пользователь с данным id " + id + " не найден.");
-        }
+        User existingUser = validateUser(id);
 
         validateEmail(id, updateUserDto);
 
-        return UserMapper.toUserDto(userStorage.updateUser(UserMapper.toUser(id, updateUserDto)));
+        if (updateUserDto.getName() != null && !updateUserDto.getName().isBlank()) {
+            existingUser.setName(updateUserDto.getName());
+        }
+
+        if (updateUserDto.getEmail() != null && !updateUserDto.getEmail().isBlank()) {
+            existingUser.setEmail(updateUserDto.getEmail());
+        }
+
+        return UserMapper.toUserDto(userRepository.save(existingUser));
     }
 
     @Override
     public void deleteUser(Long id) {
-        userStorage.deleteUser(id);
+        userRepository.deleteById(id);
     }
 
     private void validateEmail(Long id, UserDto userDto) {
-        if (userStorage.findAllUsers().stream()
-                .anyMatch(viewedUser -> Objects.equals(viewedUser.getEmail(), userDto.getEmail())
-                        && !Objects.equals(viewedUser.getId(), id))) {
-            log.warn("Данная электронная почта {} уже существует", userDto.getEmail());
-            throw new InternalServerException("Данная электронная почта уже существует");
-        }
+        userRepository.findByEmail(userDto.getEmail())
+                .ifPresent(user -> {
+                    if (!user.getId().equals(id)) {
+                        log.warn("Данная электронная почта уже существует");
+                        throw new InternalServerException("Данная электронная почта уже существует");
+                    }
+                });
+    }
+
+    private User validateUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с данным id: " + userId + " не найден"));
     }
 }

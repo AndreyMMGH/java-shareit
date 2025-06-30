@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dao.ItemStorage;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.dao.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,41 +22,52 @@ import java.util.stream.Collectors;
 @Service
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
-        User user = userStorage.findUserById(userId);
-        validateUser(user, userId);
+        User user = validateUser(userId);
 
-        return ItemMapper.toItemDto(itemStorage.createItem(
+        return ItemMapper.toItemDto(itemRepository.save(
                 ItemMapper.toItem(user, itemDto))
         );
     }
 
     @Override
     public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
-        User user = userStorage.findUserById(userId);
-        validateUser(user, userId);
+        validateUser(userId);
 
-        if (!Objects.equals(userId, itemStorage.findItemById(itemId).getOwner().getId())) {
+        Item item = validateItem(itemId);
+
+        if (!Objects.equals(userId, item.getOwner().getId())) {
             log.warn("Внесение изменений доступно владельцу");
             throw new ValidationException("Внесение изменений доступно владельцу");
         }
 
-        Item item = ItemMapper.toItem(itemId, user, itemDto);
-        return ItemMapper.toItemDto(itemStorage.updateItem(userId, item));
+        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
+            item.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
+            item.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
+        }
+
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto findItemById(Long itemId) {
-        return ItemMapper.toItemDto(itemStorage.findItemById(itemId));
+        Item item = validateItem(itemId);
+        return ItemMapper.toItemDto(item);
     }
 
     @Override
     public List<ItemDto> findUserItems(Long userId) {
-        return itemStorage.findUserItems().stream()
+        User user = validateUser(userId);
+        return itemRepository.findAllByOwner(user).stream()
                 .filter(item -> Objects.equals(item.getOwner().getId(), userId))
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -68,21 +79,19 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
 
-        return itemStorage.searchItem().stream()
-                .filter(Objects::nonNull)
-                .filter(item ->
-                        (item.getName() != null && item.getName().toLowerCase().contains(text.toLowerCase())) ||
-                                (item.getDescription() != null && item.getDescription().toLowerCase().contains(text.toLowerCase()))
-                )
-                .filter(item -> item.getAvailable() != null && item.getAvailable())
+        return itemRepository.search(text).stream()
+                .filter(item -> Objects.equals(item.getAvailable(), Boolean.TRUE))
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    private void validateUser(User user, Long userId) {
-        if (user == null) {
-            log.warn("Пользователь с данным id {} не найден", userId);
-            throw new NotFoundException("Пользователь с данным id: " + userId + " не найден");
-        }
+    private User validateUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с данным id: " + userId + " не найден"));
+    }
+
+    private Item validateItem(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Элемент с данным id: " + itemId + " не найден"));
     }
 }
