@@ -45,4 +45,12 @@ public class BookingMapper {
                 status
         );
     }
+
+    public static SimplifiedBookingDto toSimplifiedBookingDto(Booking booking) {
+        if (booking == null) return null;
+        return new SimplifiedBookingDto(
+                booking.getId(),
+                booking.getBooker().getId()
+        );
+    }
 }
