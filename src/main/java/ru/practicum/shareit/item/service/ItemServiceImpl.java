@@ -3,8 +3,12 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.mapper.ItemMapper;
@@ -24,6 +28,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemDto createItem(Long userId, ItemDto itemDto) {
@@ -65,11 +70,25 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findUserItems(Long userId) {
-        User user = validateUser(userId);
-        return itemRepository.findAllByOwner(user).stream()
-                .filter(item -> Objects.equals(item.getOwner().getId(), userId))
-                .map(ItemMapper::toItemDto)
+    public List<ItemBookingDto> findUserItems(Long userId) {
+        User owner = validateUser(userId);
+        List<Item> items = itemRepository.findAllByOwner(owner);
+
+        return items.stream()
+                .map(item -> {
+                    Booking lastBooking = bookingRepository.findLastBooking(item.getId()).stream()
+                            .findFirst()
+                            .orElse(null);
+                    Booking nextBooking = bookingRepository.findNextBooking(item.getId()).stream()
+                            .findFirst()
+                            .orElse(null);
+
+                    return ItemMapper.toItemBookingDto(
+                            item,
+                            BookingMapper.toSimplifiedBookingDto(lastBooking),
+                            BookingMapper.toSimplifiedBookingDto(nextBooking)
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
