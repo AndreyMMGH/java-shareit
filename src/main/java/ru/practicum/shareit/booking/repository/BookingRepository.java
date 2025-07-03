@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.RentalStatus;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -42,4 +43,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking AS b WHERE b.item.id = :itemId AND b.start > CURRENT_TIMESTAMP ORDER BY b.start ASC")
     List<Booking> findNextBooking(@Param("itemId") Long itemId);
+
+    Booking findFirstByBookerIdAndItemIdAndEndIsBeforeOrderByEndDesc(Long bookerId, Long itemId, LocalDateTime end);
 }
