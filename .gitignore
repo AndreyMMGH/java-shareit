@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+shareIt.mv.db
+shareIt.trace.db
+db/shareIt.mv.db
+db/*.db
