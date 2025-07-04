@@ -38,11 +38,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking AS b WHERE b.item.owner = :owner ORDER BY b.start DESC")
     List<Booking> findByItemOwnerOrderByStartDesc(@Param("owner") User owner);
 
-    @Query("SELECT b FROM Booking AS b WHERE b.item.id = :itemId AND b.end < CURRENT_TIMESTAMP ORDER BY b.end DESC")
-    List<Booking> findLastBooking(@Param("itemId") Long itemId);
-
-    @Query("SELECT b FROM Booking AS b WHERE b.item.id = :itemId AND b.start > CURRENT_TIMESTAMP ORDER BY b.start ASC")
-    List<Booking> findNextBooking(@Param("itemId") Long itemId);
-
     Booking findFirstByBookerIdAndItemIdAndEndIsBeforeOrderByEndDesc(Long bookerId, Long itemId, LocalDateTime end);
+
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN :itemIds AND b.end <= CURRENT_TIMESTAMP ORDER BY b.end DESC")
+    List<Booking> findLastBookingsForItems(@Param("itemIds") List<Long> itemIds);
+
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN :itemIds AND b.start >= CURRENT_TIMESTAMP ORDER BY b.start ASC")
+    List<Booking> findNextBookingsForItems(@Param("itemIds") List<Long> itemIds);
 }

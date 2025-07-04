@@ -21,9 +21,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -73,7 +71,28 @@ public class ItemServiceImpl implements ItemService {
     public ItemBookingDto findItemById(Long userId, Long itemId) {
         Item item = validateItem(itemId);
 
-        return forBookingDtoProduct(item, userId);
+        List<CommentResponseDto> comments = commentRepository.findByItemIdIn(List.of(itemId)).stream()
+                .map(CommentMapper::toCommentResponseDto)
+                .collect(Collectors.toList());
+
+        if (!Objects.equals(item.getOwner().getId(), userId)) {
+            return ItemMapper.toItemBookingDto(item, null, null, comments);
+        }
+
+        Booking lastBooking = bookingRepository.findLastBookingsForItems(List.of(itemId)).stream()
+                .findFirst()
+                .orElse(null);
+
+        Booking nextBooking = bookingRepository.findNextBookingsForItems(List.of(itemId)).stream()
+                .findFirst()
+                .orElse(null);
+
+        return ItemMapper.toItemBookingDto(
+                item,
+                BookingMapper.toSimplifiedBookingDto(lastBooking),
+                BookingMapper.toSimplifiedBookingDto(nextBooking),
+                comments
+        );
     }
 
     @Override
@@ -81,8 +100,33 @@ public class ItemServiceImpl implements ItemService {
         User owner = validateUser(userId);
         List<Item> items = itemRepository.findAllByOwner(owner);
 
+        List<Long> itemIds = items.stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Booking> lastBookingsMap = bookingRepository.findLastBookingsForItems(itemIds).stream()
+                .collect(Collectors.toMap(lb -> lb.getItem().getId(), lb -> lb));
+
+        Map<Long, Booking> nextBookingsMap = bookingRepository.findNextBookingsForItems(itemIds).stream()
+                .collect(Collectors.toMap(nb -> nb.getItem().getId(), nb -> nb));
+
+        Map<Long, List<CommentResponseDto>> commentsMap = commentRepository.findByItemIdIn(itemIds).stream()
+                .map(CommentMapper::toCommentResponseDto)
+                .collect(Collectors.groupingBy(CommentResponseDto::getItemId));
+
         return items.stream()
-                .map(item -> forBookingDtoProduct(item, userId))
+                .map(item -> {
+                    Booking lastBooking = lastBookingsMap.get(item.getId());
+                    Booking nextBooking = nextBookingsMap.get(item.getId());
+                    List<CommentResponseDto> comments = commentsMap.getOrDefault(item.getId(), Collections.emptyList());
+
+                    return ItemMapper.toItemBookingDto(
+                            item,
+                            BookingMapper.toSimplifiedBookingDto(lastBooking),
+                            BookingMapper.toSimplifiedBookingDto(nextBooking),
+                            comments
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
@@ -113,7 +157,6 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentResponseDto(commentRepository.save(CommentMapper.toComment(commentRequestDto, author, item)));
     }
 
-
     private User validateUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с данным id: " + userId + " не найден"));
@@ -122,30 +165,5 @@ public class ItemServiceImpl implements ItemService {
     private Item validateItem(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Элемент с данным id: " + itemId + " не найден"));
-    }
-
-    private ItemBookingDto forBookingDtoProduct(Item item, Long userId) {
-        List<CommentResponseDto> comments = commentRepository.findByItemId(item.getId()).stream()
-                .map(CommentMapper::toCommentResponseDto)
-                .collect(Collectors.toList());
-
-        if (!Objects.equals(item.getOwner().getId(), (userId))) {
-            return ItemMapper.toItemBookingDto(item, null, null, comments);
-        }
-
-        Booking lastBooking = bookingRepository.findLastBooking(item.getId()).stream()
-                .findFirst()
-                .orElse(null);
-
-        Booking nextBooking = bookingRepository.findNextBooking(item.getId()).stream()
-                .findFirst()
-                .orElse(null);
-
-        return ItemMapper.toItemBookingDto(
-                item,
-                BookingMapper.toSimplifiedBookingDto(lastBooking),
-                BookingMapper.toSimplifiedBookingDto(nextBooking),
-                comments
-        );
     }
 }
