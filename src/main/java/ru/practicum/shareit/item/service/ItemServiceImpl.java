@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -46,7 +47,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(Long itemId, Long userId, ItemDto itemDto) {
         validateUser(userId);
-
         Item item = validateItem(itemId);
 
         if (!Objects.equals(userId, item.getOwner().getId())) {
@@ -70,6 +70,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemBookingDto findItemById(Long userId, Long itemId) {
         Item item = validateItem(itemId);
+        validateUser(userId);
 
         List<CommentResponseDto> comments = commentRepository.findByItemIdIn(List.of(itemId)).stream()
                 .map(CommentMapper::toCommentResponseDto)
@@ -79,11 +80,14 @@ public class ItemServiceImpl implements ItemService {
             return ItemMapper.toItemBookingDto(item, null, null, comments);
         }
 
-        Booking lastBooking = bookingRepository.findLastBookingsForItems(List.of(itemId)).stream()
+        Sort sortDescByEnd = Sort.by(Sort.Direction.DESC, "end");
+        Sort sortAscByStart = Sort.by(Sort.Direction.ASC, "start");
+
+        Booking lastBooking = bookingRepository.findLastBookingsForItems(List.of(itemId), sortDescByEnd).stream()
                 .findFirst()
                 .orElse(null);
 
-        Booking nextBooking = bookingRepository.findNextBookingsForItems(List.of(itemId)).stream()
+        Booking nextBooking = bookingRepository.findNextBookingsForItems(List.of(itemId), sortAscByStart).stream()
                 .findFirst()
                 .orElse(null);
 
@@ -104,10 +108,13 @@ public class ItemServiceImpl implements ItemService {
                 .map(Item::getId)
                 .collect(Collectors.toList());
 
-        Map<Long, Booking> lastBookingsMap = bookingRepository.findLastBookingsForItems(itemIds).stream()
+        Sort sortDescByEnd = Sort.by(Sort.Direction.DESC, "end");
+        Sort sortAscByStart = Sort.by(Sort.Direction.ASC, "start");
+
+        Map<Long, Booking> lastBookingsMap = bookingRepository.findLastBookingsForItems(itemIds, sortDescByEnd).stream()
                 .collect(Collectors.toMap(lb -> lb.getItem().getId(), lb -> lb));
 
-        Map<Long, Booking> nextBookingsMap = bookingRepository.findNextBookingsForItems(itemIds).stream()
+        Map<Long, Booking> nextBookingsMap = bookingRepository.findNextBookingsForItems(itemIds, sortAscByStart).stream()
                 .collect(Collectors.toMap(nb -> nb.getItem().getId(), nb -> nb));
 
         Map<Long, List<CommentResponseDto>> commentsMap = commentRepository.findByItemIdIn(itemIds).stream()
@@ -146,8 +153,9 @@ public class ItemServiceImpl implements ItemService {
     public CommentResponseDto createComment(Long userId, Long itemId, CommentRequestDto commentRequestDto) {
         User author = validateUser(userId);
         Item item = validateItem(itemId);
+        Sort sortDescByEnd = Sort.by(Sort.Direction.DESC, "end");
 
-        Booking booking = bookingRepository.findFirstByBookerIdAndItemIdAndEndIsBeforeOrderByEndDesc(userId, itemId, LocalDateTime.now());
+        Booking booking = bookingRepository.findFirstByBookerIdAndItemIdAndEndIsBefore(userId, itemId, LocalDateTime.now(), sortDescByEnd);
 
         if (booking == null) {
             log.warn("Пользователь может оставить комментарий после аренды");

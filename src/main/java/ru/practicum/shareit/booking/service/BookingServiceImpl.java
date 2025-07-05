@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -16,7 +17,6 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -55,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto updateBooking(Long userId, Long bookingId, Boolean approved) {
+        validateForbiddenUser(userId);
         Booking booking = validateBooking(bookingId);
 
         if (!Objects.equals(userId, booking.getItem().getOwner().getId())) {
@@ -74,6 +75,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto findBookingById(Long userId, Long bookingId) {
+        validateUser(userId);
         Booking booking = validateBooking(bookingId);
 
         if (!Objects.equals(booking.getItem().getOwner().getId(), userId) && !Objects.equals(booking.getBooker().getId(), userId)) {
@@ -87,27 +89,29 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> findUserBookings(Long userId, String state) {
         User booker = validateUser(userId);
-        List<Booking> bookerBookings = new ArrayList<>();
+
+        List<Booking> bookerBookings;
+        Sort sortDescByStart = Sort.by(Sort.Direction.DESC, "start");
 
         switch (state) {
             case "CURRENT":
-                bookerBookings = bookingRepository.findCurrentBookings(booker);
+                bookerBookings = bookingRepository.findCurrentBookings(booker, sortDescByStart);
                 break;
             case "PAST":
-                bookerBookings = bookingRepository.findPastBookings(booker);
+                bookerBookings = bookingRepository.findPastBookings(booker, sortDescByStart);
                 break;
             case "FUTURE":
-                bookerBookings = bookingRepository.findFutureBookings(booker);
+                bookerBookings = bookingRepository.findFutureBookings(booker, sortDescByStart);
                 break;
             case "WAITING":
-                bookerBookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(booker, RentalStatus.WAITING);
+                bookerBookings = bookingRepository.findByBookerAndStatus(booker, RentalStatus.WAITING, sortDescByStart);
                 break;
             case "REJECTED":
-                bookerBookings = bookingRepository.findByBookerAndStatusOrderByStartDesc(booker, RentalStatus.REJECTED);
+                bookerBookings = bookingRepository.findByBookerAndStatus(booker, RentalStatus.REJECTED, sortDescByStart);
                 break;
             case "ALL":
             default:
-                bookerBookings = bookingRepository.findByBookerOrderByStartDesc(booker);
+                bookerBookings = bookingRepository.findByBooker(booker, sortDescByStart);
                 break;
         }
 
@@ -119,34 +123,40 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> findOwnerReservedItems(Long userId, String state) {
         User owner = validateUser(userId);
-        List<Booking> ownerBookings = new ArrayList<>();
+
+        List<Booking> ownerBookings;
+        Sort sortDescByStart = Sort.by(Sort.Direction.DESC, "start");
 
         switch (state) {
             case "CURRENT":
-                ownerBookings = bookingRepository.findCurrentItemsBookings(owner);
+                ownerBookings = bookingRepository.findCurrentItemsBookings(owner, sortDescByStart);
                 break;
             case "PAST":
-                ownerBookings = bookingRepository.findPastItemsBookings(owner);
+                ownerBookings = bookingRepository.findPastItemsBookings(owner, sortDescByStart);
                 break;
             case "FUTURE":
-                ownerBookings = bookingRepository.findFutureItemsBookings(owner);
+                ownerBookings = bookingRepository.findFutureItemsBookings(owner, sortDescByStart);
                 break;
             case "WAITING":
-                ownerBookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, RentalStatus.WAITING);
+                ownerBookings = bookingRepository.findByItemOwnerAndStatus(owner, RentalStatus.WAITING, sortDescByStart);
                 break;
             case "REJECTED":
-                ownerBookings = bookingRepository.findByItemOwnerAndStatusOrderByStartDesc(owner, RentalStatus.REJECTED);
-                ;
+                ownerBookings = bookingRepository.findByItemOwnerAndStatus(owner, RentalStatus.REJECTED, sortDescByStart);
                 break;
             case "ALL":
             default:
-                ownerBookings = bookingRepository.findByItemOwnerOrderByStartDesc(owner);
+                ownerBookings = bookingRepository.findByItemOwner(owner, sortDescByStart);
                 break;
         }
 
         return ownerBookings.stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
+    }
+
+    private void validateForbiddenUser(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ValidationException("Пользователю с данным id: " + userId + " доступ запрещен"));
     }
 
     private User validateUser(Long userId) {
