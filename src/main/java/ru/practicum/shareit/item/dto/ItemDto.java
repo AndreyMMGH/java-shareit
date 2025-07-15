@@ -17,4 +17,5 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Поле доступ не может быть null")
     private Boolean available;
+    private Long requestId;
 }
