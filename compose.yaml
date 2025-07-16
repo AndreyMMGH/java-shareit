@@ -1,13 +1,32 @@
 services:
-  db:
+  # Основная БД
+  db-dev:
     image: postgres:16.1
-    container_name: postgres5
+    container_name: postgres-dev
     ports:
       - "5438:5432"
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=shareitdb
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+
+  # Тестовая БД
+  db-test:
+    image: postgres:16.1
+    container_name: postgres-test
+    ports:
+      - "5439:5432"
+    volumes:
+      - ./volumes/postgres-test:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=test
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
     healthcheck:
