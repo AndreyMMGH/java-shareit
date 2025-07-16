@@ -6,7 +6,7 @@ import ru.practicum.shareit.request.dto.ItemResponseDto;
 import java.util.List;
 
 public interface ItemRequestService {
-    ItemRequestDto createItemRequest(Long userId, ItemRequestDto itemRequestDto);
+    ItemResponseDto createItemRequest(Long userId, ItemRequestDto itemRequestDto);
 
     List<ItemResponseDto> findListOfYourQueriesWithAnswers(Long userId);
 

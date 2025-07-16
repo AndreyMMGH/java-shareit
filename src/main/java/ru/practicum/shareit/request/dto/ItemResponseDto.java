@@ -15,6 +15,7 @@ import java.util.List;
 @Setter
 @Getter
 public class ItemResponseDto {
+    private Long id;
     private String description;
     private Long userId;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

@@ -17,7 +17,8 @@ public class BookingMapper {
         ItemDto itemDto = new ItemDto(booking.getItem().getId(),
                 booking.getItem().getName(),
                 booking.getItem().getDescription(),
-                booking.getItem().getAvailable()
+                booking.getItem().getAvailable(),
+                null
         );
 
         UserDto bookerDto = new UserDto(

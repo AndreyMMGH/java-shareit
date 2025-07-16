@@ -14,6 +14,7 @@ import java.util.List;
 public class ItemRequestMapper {
     public static ItemResponseDto toItemResponseDto(ItemRequest itemRequest, List<ItemDto> items) {
         return new ItemResponseDto(
+                itemRequest.getId(),
                 itemRequest.getDescription(),
                 itemRequest.getRequestor().getId(),
                 itemRequest.getCreated(),
