@@ -20,8 +20,7 @@ public class UserDtoTest {
     private final JacksonTester<UserDto> jsonUserDto;
 
     @Test
-    void shouldReturnUserDto() throws Exception
-    {
+    void shouldReturnUserDto() throws Exception {
         UserDto userDto = new UserDto(
                 1L,
                 "Макс Иванов",
@@ -36,8 +35,7 @@ public class UserDtoTest {
     }
 
     @Test
-    void shouldDeserializeUserDtoFromJson() throws Exception
-    {
+    void shouldDeserializeUserDtoFromJson() throws Exception {
         String json = """
                 {
                   "id": 1,

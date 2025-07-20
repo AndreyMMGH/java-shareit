@@ -29,8 +29,7 @@ public class ItemAndBookingDtoTest {
 
 
     @Test
-    void shouldReturnItemDto() throws Exception
-    {
+    void shouldReturnItemDto() throws Exception {
         ItemDto itemDto = new ItemDto(
                 1L,
                 "Canon 500d",
@@ -49,8 +48,7 @@ public class ItemAndBookingDtoTest {
     }
 
     @Test
-    void shouldReturnItemBookingDto() throws Exception
-    {
+    void shouldReturnItemBookingDto() throws Exception {
 
         CommentResponseDto commentResponseDto = new CommentResponseDto(
                 10L,
@@ -101,8 +99,7 @@ public class ItemAndBookingDtoTest {
     }
 
     @Test
-    void shouldDeserializeItemBookingDtoFromJson() throws Exception
-    {
+    void shouldDeserializeItemBookingDtoFromJson() throws Exception {
         String json = """
                 {
                   "id": 2,
@@ -146,8 +143,7 @@ public class ItemAndBookingDtoTest {
     }
 
     @Test
-    void shouldSerializeItemBookingDtoWithNullFields() throws Exception
-    {
+    void shouldSerializeItemBookingDtoWithNullFields() throws Exception {
         ItemBookingDto itemBookingDto = new ItemBookingDto(
                 2L,
                 "Canon 500d",
