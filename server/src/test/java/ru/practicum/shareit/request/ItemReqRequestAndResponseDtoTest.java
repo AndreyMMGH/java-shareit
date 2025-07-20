@@ -26,7 +26,8 @@ public class ItemReqRequestAndResponseDtoTest {
     private final JacksonTester<ItemDto> jsonItemDto;
 
     @Test
-    void shouldReturnItemReqRequestDto() throws Exception {
+    void shouldReturnItemReqRequestDto() throws Exception
+    {
         ItemReqRequestDto itemReqRequestDto = new ItemReqRequestDto(
                 "Ищу строительный пылесос",
                 1L
@@ -39,7 +40,8 @@ public class ItemReqRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnItemReqResponseDto() throws Exception {
+    void shouldReturnItemReqResponseDto() throws Exception
+    {
         ItemReqResponseDto itemReqResponseDto = new ItemReqResponseDto(
                 2L,
                 "нужен фотоаппарат",
@@ -58,7 +60,8 @@ public class ItemReqRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnItemReqResponseDtoAndItemDto() throws Exception {
+    void shouldReturnItemReqResponseDtoAndItemDto() throws Exception
+    {
         ItemDto itemDto = new ItemDto(
                 5L,
                 "Canon 500d",
@@ -90,7 +93,8 @@ public class ItemReqRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldDeserializeItemReqResponseDtoFromJson() throws Exception {
+    void shouldDeserializeItemReqResponseDtoFromJson() throws Exception
+    {
         String json = """
                 {
                   "id": 2,

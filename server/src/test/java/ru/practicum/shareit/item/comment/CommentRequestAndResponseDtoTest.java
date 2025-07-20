@@ -23,7 +23,8 @@ public class CommentRequestAndResponseDtoTest {
     private final JacksonTester<CommentResponseDto> jsonCommentResponseDto;
 
     @Test
-    void shouldReturnCommentRequestDto() throws Exception {
+    void shouldReturnCommentRequestDto() throws Exception
+    {
         CommentRequestDto commentRequestDto = new CommentRequestDto(
                 "Все понравилось. Рекомендую!"
         );
@@ -34,7 +35,8 @@ public class CommentRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnCommentResponseDto() throws Exception {
+    void shouldReturnCommentResponseDto() throws Exception
+    {
         CommentResponseDto commentResponseDto = new CommentResponseDto(
                 10L,
                 "Все понравилось. Рекомендую!",
@@ -53,7 +55,8 @@ public class CommentRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnDeserializeCommentRequestDtoFromJson() throws Exception {
+    void shouldReturnDeserializeCommentRequestDtoFromJson() throws Exception
+    {
         String json = """
                 {
                   "text": "Все понравилось. Рекомендую!"
@@ -66,7 +69,8 @@ public class CommentRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnSerializeCommentResponseDtoWithNullFields() throws Exception {
+    void shouldReturnSerializeCommentResponseDtoWithNullFields() throws Exception
+    {
         CommentResponseDto commentResponseDto = new CommentResponseDto(
                 10L,
                 "Все понравилось. Рекомендую!",

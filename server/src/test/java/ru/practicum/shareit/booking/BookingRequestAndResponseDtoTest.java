@@ -30,7 +30,8 @@ public class BookingRequestAndResponseDtoTest {
     private final JacksonTester<SimplifiedBookingDto> jsonSimplifiedBookingDto;
 
     @Test
-    void shouldReturnBookingRequestDto() throws Exception {
+    void shouldReturnBookingRequestDto() throws Exception
+    {
         BookingRequestDto bookingRequestDto = new BookingRequestDto(
                 1L,
                 LocalDateTime.of(2025, 7, 20, 10, 0),
@@ -44,7 +45,8 @@ public class BookingRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnBookingResponseDto() throws Exception {
+    void shouldReturnBookingResponseDto() throws Exception
+    {
         UserDto userDto = new UserDto(
                 1L,
                 "Макс Иванов",
@@ -87,7 +89,8 @@ public class BookingRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldReturnSimplifiedBookingDto() throws Exception {
+    void shouldReturnSimplifiedBookingDto() throws Exception
+    {
         SimplifiedBookingDto simplifiedBookingDto = new SimplifiedBookingDto(
                 1L,
                 1L
@@ -100,7 +103,8 @@ public class BookingRequestAndResponseDtoTest {
     }
 
     @Test
-    void shouldDeserializeBookingRequestDto() throws Exception {
+    void shouldDeserializeBookingRequestDto() throws Exception
+    {
         String json = """
                     {
                         "itemId": 1,
