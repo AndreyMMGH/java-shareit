@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.request;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemResponseDto;
+import ru.practicum.shareit.ShareItApp;
+import ru.practicum.shareit.request.dto.ItemReqRequestDto;
+import ru.practicum.shareit.request.dto.ItemReqResponseDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
@@ -17,20 +18,18 @@ import ru.practicum.shareit.user.model.User;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Transactional
-//@ActiveProfiles("dev")
+@ActiveProfiles("test")
 @SpringBootTest(
-        //properties = "spring.datasource.url=jdbc:postgresql://db:5432/shareit",
         classes = ShareItApp.class,
         webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemRequestServiceTest {
     private final EntityManager em;
     private final ItemRequestService itemRequestService;
-
     private Long userId;
 
     @BeforeEach
-    void setUo() {
+    void setUp() {
         User user = new User();
         user.setName("Егор");
         user.setEmail("egor@mail.ru");
@@ -43,20 +42,20 @@ public class ItemRequestServiceTest {
 
     @Test
     public void mustCreateItemRequest() {
-        ItemRequestDto itemRequestDto = new ItemRequestDto("Ищу строительный пылесос", userId);
+        ItemReqRequestDto itemReqRequestDto = new ItemReqRequestDto("Ищу строительный пылесос", userId);
 
-        ItemResponseDto itemResponseDto = itemRequestService.createItemRequest(userId, itemRequestDto);
+        ItemReqResponseDto itemReqResponseDto = itemRequestService.createItemRequest(userId, itemReqRequestDto);
 
-        assertThat(itemResponseDto.getId()).isNotNull();
-        assertThat(itemResponseDto.getDescription()).isEqualTo(itemResponseDto.getDescription());
-        assertThat(itemResponseDto.getUserId()).isEqualTo(userId);
-        assertThat(itemResponseDto.getCreated()).isNotNull();
-        assertThat(itemResponseDto.getItems()).isEmpty();
+        assertThat(itemReqResponseDto.getId()).isNotNull();
+        assertThat(itemReqResponseDto.getDescription()).isEqualTo(itemReqResponseDto.getDescription());
+        assertThat(itemReqResponseDto.getUserId()).isEqualTo(userId);
+        assertThat(itemReqResponseDto.getCreated()).isNotNull();
+        assertThat(itemReqResponseDto.getItems()).isEmpty();
 
 
         ItemRequest savedItemRequest = em.createQuery(
                         "SELECT ir FROM ItemRequest ir WHERE ir.id = :id", ItemRequest.class)
-                .setParameter("id", itemResponseDto.getId())
+                .setParameter("id", itemReqResponseDto.getId())
                 .getSingleResult();
 
         assertThat(savedItemRequest.getDescription()).isEqualTo("Ищу строительный пылесос");

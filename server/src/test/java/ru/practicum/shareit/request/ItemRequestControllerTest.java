@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +14,8 @@ import ru.practicum.shareit.error.ErrorHandler;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.controller.ItemRequestController;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemResponseDto;
+import ru.practicum.shareit.request.dto.ItemReqRequestDto;
+import ru.practicum.shareit.request.dto.ItemReqResponseDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import java.nio.charset.StandardCharsets;
@@ -35,15 +35,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class ItemRequestControllerTest {
     @Mock
     private ItemRequestService itemRequestService;
-
     @InjectMocks
     private ItemRequestController itemRequestController;
     private final ObjectMapper mapper = new ObjectMapper();
     private MockMvc mvc;
-    private ItemRequestDto itemRequestDto;
+    private ItemReqRequestDto itemReqRequestDto;
     private ItemDto itemDto;
-    private ItemResponseDto itemResponseDto;
-    private ItemResponseDto itemResponseDto2;
+    private ItemReqResponseDto itemReqResponseDto;
+    private ItemReqResponseDto itemReqResponseDto2;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +53,7 @@ public class ItemRequestControllerTest {
                 .setControllerAdvice(new ErrorHandler())
                 .build();
 
-        itemRequestDto = new ItemRequestDto(
+        itemReqRequestDto = new ItemReqRequestDto(
                 "Ищу строительный пылесос",
                 1L
         );
@@ -67,7 +66,7 @@ public class ItemRequestControllerTest {
                 2L
         );
 
-        itemResponseDto = new ItemResponseDto(
+        itemReqResponseDto = new ItemReqResponseDto(
                 1L,
                 "Ищу строительный пылесос",
                 1L,
@@ -75,7 +74,7 @@ public class ItemRequestControllerTest {
                 List.of()
         );
 
-        itemResponseDto2 = new ItemResponseDto(
+        itemReqResponseDto2 = new ItemReqResponseDto(
                 1L,
                 "Ищу строительный пылесос",
                 1L,
@@ -87,18 +86,18 @@ public class ItemRequestControllerTest {
     @Test
     void mustCreateItemRequest() throws Exception {
         when(itemRequestService.createItemRequest(eq(1L), any()))
-                .thenReturn(itemResponseDto);
+                .thenReturn(itemReqResponseDto);
 
         mvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", 1L)
-                        .content(mapper.writeValueAsString(itemRequestDto))
+                        .content(mapper.writeValueAsString(itemReqRequestDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.description", is(itemRequestDto.getDescription())))
-                .andExpect(jsonPath("$.userId", is(itemRequestDto.getRequestorId().intValue())))
+                .andExpect(jsonPath("$.description", is(itemReqRequestDto.getDescription())))
+                .andExpect(jsonPath("$.userId", is(itemReqRequestDto.getRequestorId().intValue())))
                 .andExpect(jsonPath("$.created", is("2025-07-16T19:40:00")))
                 .andExpect(jsonPath("$.items").isArray());
     }
@@ -106,7 +105,7 @@ public class ItemRequestControllerTest {
     @Test
     void mustFindListOfYourQueriesWithAnswers() throws Exception {
         when(itemRequestService.findListOfYourQueriesWithAnswers(1L))
-                .thenReturn(List.of(itemResponseDto2));
+                .thenReturn(List.of(itemReqResponseDto2));
 
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 1)
@@ -128,7 +127,7 @@ public class ItemRequestControllerTest {
     @Test
     void mustFindListOfRequestsOtherUsers() throws Exception {
         when(itemRequestService.findListOfRequestsOtherUsers(1L, 0, 10))
-                .thenReturn(List.of(itemResponseDto2));
+                .thenReturn(List.of(itemReqResponseDto2));
 
         mvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1)
@@ -152,7 +151,7 @@ public class ItemRequestControllerTest {
     @Test
     void mustFindYourQueryWithAnswers() throws Exception {
         when(itemRequestService.findYourQueryWithAnswers(1L, 1L))
-                .thenReturn(itemResponseDto2);
+                .thenReturn(itemReqResponseDto2);
 
         mvc.perform(get("/requests/1")
                         .header("X-Sharer-User-Id", 1)

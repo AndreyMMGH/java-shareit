@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ItemResponseDto {
+public class ItemReqResponseDto {
     private Long id;
     private String description;
     private Long userId;

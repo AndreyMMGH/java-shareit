@@ -9,8 +9,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemResponseDto;
+import ru.practicum.shareit.request.dto.ItemReqRequestDto;
+import ru.practicum.shareit.request.dto.ItemReqResponseDto;
 import ru.practicum.shareit.request.dto.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -31,15 +31,15 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRepository itemRepository;
 
     @Override
-    public ItemResponseDto createItemRequest(Long userId, ItemRequestDto itemRequestDto) {
+    public ItemReqResponseDto createItemRequest(Long userId, ItemReqRequestDto itemReqRequestDto) {
         User user = validateUser(userId);
 
         return ItemRequestMapper.toItemResponseDto(itemRequestRepository
-                .save(ItemRequestMapper.toItemRequest(itemRequestDto, user)), List.of());
+                .save(ItemRequestMapper.toItemRequest(itemReqRequestDto, user)), List.of());
     }
 
     @Override
-    public List<ItemResponseDto> findListOfYourQueriesWithAnswers(Long userId) {
+    public List<ItemReqResponseDto> findListOfYourQueriesWithAnswers(Long userId) {
         validateUser(userId);
 
         List<ItemRequest> requests = itemRequestRepository.findByRequestorIdOrderByCreatedDesc(userId);
@@ -48,7 +48,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemResponseDto> findListOfRequestsOtherUsers(Long userId, int from, int size) {
+    public List<ItemReqResponseDto> findListOfRequestsOtherUsers(Long userId, int from, int size) {
         validateUser(userId);
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
@@ -59,7 +59,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemResponseDto findYourQueryWithAnswers(Long userId, Long requestId) {
+    public ItemReqResponseDto findYourQueryWithAnswers(Long userId, Long requestId) {
         validateUser(userId);
 
         ItemRequest itemRequest = itemRequestRepository.findById(requestId)
@@ -79,7 +79,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с данным id: " + userId + " не найден"));
     }
 
-    private List<ItemResponseDto> composeResponseForItemResponseDto(List<ItemRequest> requests) {
+    private List<ItemReqResponseDto> composeResponseForItemResponseDto(List<ItemRequest> requests) {
         if (requests == null || requests.isEmpty()) {
             return List.of();
         }

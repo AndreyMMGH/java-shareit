@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ItemRequestDto {
+public class ItemReqRequestDto {
     private String description;
     private Long requestorId;
 }

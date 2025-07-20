@@ -1,20 +1,16 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.request;
 
-import jakarta.validation.Validation;
-import jakarta.validation.ValidatorFactory;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.test.context.ContextConfiguration;
+import ru.practicum.shareit.ShareItApp;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemResponseDto;
-
-import jakarta.validation.Validator;
+import ru.practicum.shareit.request.dto.ItemReqRequestDto;
+import ru.practicum.shareit.request.dto.ItemReqResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,35 +20,27 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @ContextConfiguration(classes = ShareItApp.class)
 @JsonTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ItemRequestTest {
-    private final JacksonTester<ItemRequestDto> json;
-    private final JacksonTester<ItemResponseDto> jsonItemResponseDto;
+public class ItemReqRequestAndResponseDtoTest {
+    private final JacksonTester<ItemReqRequestDto> json;
+    private final JacksonTester<ItemReqResponseDto> jsonItemResponseDto;
     private final JacksonTester<ItemDto> jsonItemDto;
 
-    private Validator validator;
-
-    @BeforeEach
-    void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-    }
-
     @Test
-    void shouldReturnItemRequestDto() throws Exception {
-        ItemRequestDto itemRequestDto = new ItemRequestDto(
+    void shouldReturnItemReqRequestDto() throws Exception {
+        ItemReqRequestDto itemReqRequestDto = new ItemReqRequestDto(
                 "Ищу строительный пылесос",
                 1L
         );
 
-        JsonContent<ItemRequestDto> result = json.write(itemRequestDto);
+        JsonContent<ItemReqRequestDto> result = json.write(itemReqRequestDto);
 
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("Ищу строительный пылесос");
         assertThat(result).extractingJsonPathNumberValue("$.requestorId").isEqualTo(1);
     }
 
     @Test
-    void shouldReturnItemResponseDto() throws Exception {
-        ItemResponseDto itemResponseDto = new ItemResponseDto(
+    void shouldReturnItemReqResponseDto() throws Exception {
+        ItemReqResponseDto itemReqResponseDto = new ItemReqResponseDto(
                 2L,
                 "нужен фотоаппарат",
                 3L,
@@ -60,7 +48,7 @@ public class ItemRequestTest {
                 List.of()
         );
 
-        JsonContent<ItemResponseDto> result = jsonItemResponseDto.write(itemResponseDto);
+        JsonContent<ItemReqResponseDto> result = jsonItemResponseDto.write(itemReqResponseDto);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(2);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("нужен фотоаппарат");
@@ -70,7 +58,7 @@ public class ItemRequestTest {
     }
 
     @Test
-    void shouldReturnItemResponseDtoAndItemDto() throws Exception {
+    void shouldReturnItemReqResponseDtoAndItemDto() throws Exception {
         ItemDto itemDto = new ItemDto(
                 5L,
                 "Canon 500d",
@@ -79,7 +67,7 @@ public class ItemRequestTest {
                 10L
         );
 
-        ItemResponseDto itemResponseDto = new ItemResponseDto(
+        ItemReqResponseDto itemReqResponseDto = new ItemReqResponseDto(
                 2L,
                 "нужен фотоаппарат",
                 3L,
@@ -87,7 +75,7 @@ public class ItemRequestTest {
                 List.of(itemDto)
         );
 
-        JsonContent<ItemResponseDto> result = jsonItemResponseDto.write(itemResponseDto);
+        JsonContent<ItemReqResponseDto> result = jsonItemResponseDto.write(itemReqResponseDto);
         JsonContent<ItemDto> resultItemDto = jsonItemDto.write(itemDto);
 
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(2);
@@ -102,7 +90,7 @@ public class ItemRequestTest {
     }
 
     @Test
-    void shouldDeserializeItemResponseDtoFromJson() throws Exception {
+    void shouldDeserializeItemReqResponseDtoFromJson() throws Exception {
         String json = """
                 {
                   "id": 2,
@@ -113,7 +101,7 @@ public class ItemRequestTest {
                 }
                 """;
 
-        ItemResponseDto result = jsonItemResponseDto.parse(json).getObject();
+        ItemReqResponseDto result = jsonItemResponseDto.parse(json).getObject();
 
         assertThat(result.getId()).isEqualTo(2L);
         assertThat(result.getDescription()).isEqualTo("нужен фотоаппарат");
