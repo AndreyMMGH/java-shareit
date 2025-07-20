@@ -101,13 +101,7 @@ public class BookingRequestAndResponseDtoTest {
 
     @Test
     void shouldDeserializeBookingRequestDto() throws Exception {
-        String json = """
-                    {
-                        "itemId": 1,
-                        "start": "2025-07-20T10:00:00",
-                        "end": "2025-07-20T12:00:00"
-                    }
-                """;
+        String json = "{ \"itemId\": 1, \"start\": \"2025-07-20T10:00:00\", \"end\": \"2025-07-20T12:00:00\" }";
 
         BookingRequestDto expected = new BookingRequestDto(
                 1L,

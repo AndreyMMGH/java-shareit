@@ -54,11 +54,7 @@ public class CommentRequestAndResponseDtoTest {
 
     @Test
     void shouldReturnDeserializeCommentRequestDtoFromJson() throws Exception {
-        String json = """
-                {
-                  "text": "Все понравилось. Рекомендую!"
-                }
-                """;
+        String json = "{ \"text\": \"Все понравилось. Рекомендую!\" }";
 
         CommentRequestDto dto = jsonCommentRequestDto.parse(json).getObject();
 

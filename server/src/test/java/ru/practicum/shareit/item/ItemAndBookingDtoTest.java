@@ -100,31 +100,7 @@ public class ItemAndBookingDtoTest {
 
     @Test
     void shouldDeserializeItemBookingDtoFromJson() throws Exception {
-        String json = """
-                {
-                  "id": 2,
-                  "name": "Canon 500d",
-                  "description": "Полупрофессиональная модель фотоаппарата",
-                  "available": true,
-                  "lastBooking": {
-                    "id": 1,
-                    "bookerId": 1
-                  },
-                  "nextBooking": {
-                    "id": 3,
-                    "bookerId": 2
-                  },
-                  "comments": [
-                    {
-                      "id": 10,
-                      "text": "Все понравилось. Рекомендую!",
-                      "authorName": "Александра Иванова",
-                      "created": "2025-07-19T17:58:00",
-                      "itemId": 2
-                    }
-                  ]
-                }
-                """;
+        String json = "{ \"id\": 2, \"name\": \"Canon 500d\", \"description\": \"Полупрофессиональная модель фотоаппарата\", \"available\": true, \"lastBooking\": { \"id\": 1, \"bookerId\": 1 }, \"nextBooking\": { \"id\": 3, \"bookerId\": 2 }, \"comments\": [ { \"id\": 10, \"text\": \"Все понравилось. Рекомендую!\", \"authorName\": \"Александра Иванова\", \"created\": \"2025-07-19T17:58:00\", \"itemId\": 2 } ] }";
 
         ItemBookingDto result = jsonItemBookingDto.parse(json).getObject();
 

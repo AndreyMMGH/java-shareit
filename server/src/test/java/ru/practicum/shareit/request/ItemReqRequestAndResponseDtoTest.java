@@ -91,15 +91,7 @@ public class ItemReqRequestAndResponseDtoTest {
 
     @Test
     void shouldDeserializeItemReqResponseDtoFromJson() throws Exception {
-        String json = """
-                {
-                  "id": 2,
-                  "description": "нужен фотоаппарат",
-                  "userId": 3,
-                  "created": "2025-07-16T18:30:00",
-                  "items": []
-                }
-                """;
+        String json = "{ \"id\": 2, \"description\": \"нужен фотоаппарат\", \"userId\": 3, \"created\": \"2025-07-16T18:30:00\", \"items\": [] }";
 
         ItemReqResponseDto result = jsonItemResponseDto.parse(json).getObject();
 
