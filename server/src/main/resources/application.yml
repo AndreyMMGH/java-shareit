@@ -10,7 +10,7 @@ spring:
       on-profile: dev
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5445/shareit
+    url: jdbc:postgresql://localhost:5432/shareit
     username: dbuser
     password: 12345
   jpa:
