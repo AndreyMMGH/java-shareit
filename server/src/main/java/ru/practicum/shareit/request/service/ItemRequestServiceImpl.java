@@ -39,7 +39,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemReqResponseDto> findListOfYourQueriesWithAnswers(Long userId) {
+    public List<ItemReqResponseDto> getRequests(Long userId) {
         validateUser(userId);
 
         List<ItemRequest> requests = itemRequestRepository.findByRequestorIdOrderByCreatedDesc(userId);
@@ -48,7 +48,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemReqResponseDto> findListOfRequestsOtherUsers(Long userId, int from, int size) {
+    public List<ItemReqResponseDto> getRequestsOtherUsers(Long userId, int from, int size) {
         validateUser(userId);
 
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("created").descending());
@@ -59,7 +59,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemReqResponseDto findYourQueryWithAnswers(Long userId, Long requestId) {
+    public ItemReqResponseDto getRequestWithAnswers(Long userId, Long requestId) {
         validateUser(userId);
 
         ItemRequest itemRequest = itemRequestRepository.findById(requestId)

@@ -74,7 +74,7 @@ public class ItemRequestServiceTest {
         em.persist(itemRequest);
         em.flush();
 
-        List<ItemReqResponseDto> results = itemRequestService.findListOfYourQueriesWithAnswers(userId);
+        List<ItemReqResponseDto> results = itemRequestService.getRequests(userId);
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getDescription()).isEqualTo("Нужен фотоаппарат");
@@ -94,7 +94,7 @@ public class ItemRequestServiceTest {
         em.persist(itemRequest);
         em.flush();
 
-        List<ItemReqResponseDto> results = itemRequestService.findListOfRequestsOtherUsers(userId, 0, 10);
+        List<ItemReqResponseDto> results = itemRequestService.getRequestsOtherUsers(userId, 0, 10);
 
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getDescription()).isEqualTo("Нужен фотоаппарат");
@@ -122,7 +122,7 @@ public class ItemRequestServiceTest {
 
         em.flush();
 
-        ItemReqResponseDto result = itemRequestService.findYourQueryWithAnswers(userId, itemRequest.getId());
+        ItemReqResponseDto result = itemRequestService.getRequestWithAnswers(userId, itemRequest.getId());
 
         assertThat(result.getId()).isEqualTo(itemRequest.getId());
         assertThat(result.getItems()).hasSize(1);
@@ -131,19 +131,19 @@ public class ItemRequestServiceTest {
 
     @Test
     void mustThrowWhenUserNotFound() {
-        assertThatThrownBy(() -> itemRequestService.findListOfYourQueriesWithAnswers(999L))
+        assertThatThrownBy(() -> itemRequestService.getRequests(999L))
                 .isInstanceOf(ru.practicum.shareit.exception.NotFoundException.class);
     }
 
     @Test
     void mustThrowWhenRequestNotFound() {
-        assertThatThrownBy(() -> itemRequestService.findYourQueryWithAnswers(userId, 999L))
+        assertThatThrownBy(() -> itemRequestService.getRequestWithAnswers(userId, 999L))
                 .isInstanceOf(ru.practicum.shareit.exception.NotFoundException.class);
     }
 
     @Test
     void mustReturnEmptyListWhenNoRequests() {
-        var result = itemRequestService.findListOfYourQueriesWithAnswers(userId);
+        var result = itemRequestService.getRequests(userId);
         assertThat(result).isEmpty();
     }
 }

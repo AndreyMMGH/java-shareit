@@ -98,13 +98,17 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.description", is(itemReqRequestDto.getDescription())))
                 .andExpect(jsonPath("$.userId", is(itemReqRequestDto.getRequestorId().intValue())))
-                .andExpect(jsonPath("$.created", is("2025-07-16T19:40:00")))
+                .andExpect(jsonPath("$.created[0]", is(2025)))
+                .andExpect(jsonPath("$.created[1]", is(7)))
+                .andExpect(jsonPath("$.created[2]", is(16)))
+                .andExpect(jsonPath("$.created[3]", is(19)))
+                .andExpect(jsonPath("$.created[4]", is(40)))
                 .andExpect(jsonPath("$.items").isArray());
     }
 
     @Test
     void mustFindListOfYourQueriesWithAnswers() throws Exception {
-        when(itemRequestService.findListOfYourQueriesWithAnswers(1L))
+        when(itemRequestService.getRequests(1L))
                 .thenReturn(List.of(itemReqResponseDto2));
 
         mvc.perform(get("/requests")
@@ -115,7 +119,11 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].description", is("Ищу строительный пылесос")))
                 .andExpect(jsonPath("$[0].userId", is(1)))
-                .andExpect(jsonPath("$[0].created", is("2025-07-16T19:40:00")))
+                .andExpect(jsonPath("$[0].created[0]", is(2025)))
+                .andExpect(jsonPath("$[0].created[1]", is(7)))
+                .andExpect(jsonPath("$[0].created[2]", is(16)))
+                .andExpect(jsonPath("$[0].created[3]", is(19)))
+                .andExpect(jsonPath("$[0].created[4]", is(40)))
                 .andExpect(jsonPath("$[0].items").isArray())
                 .andExpect(jsonPath("$[0].items[0].id", is(1)))
                 .andExpect(jsonPath("$[0].items[0].name", is("Karcher WD 2 Plus")))
@@ -126,7 +134,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void mustFindListOfRequestsOtherUsers() throws Exception {
-        when(itemRequestService.findListOfRequestsOtherUsers(1L, 0, 10))
+        when(itemRequestService.getRequestsOtherUsers(1L, 0, 10))
                 .thenReturn(List.of(itemReqResponseDto2));
 
         mvc.perform(get("/requests/all")
@@ -139,7 +147,11 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].description", is("Ищу строительный пылесос")))
                 .andExpect(jsonPath("$[0].userId", is(1)))
-                .andExpect(jsonPath("$[0].created", is("2025-07-16T19:40:00")))
+                .andExpect(jsonPath("$[0].created[0]", is(2025)))
+                .andExpect(jsonPath("$[0].created[1]", is(7)))
+                .andExpect(jsonPath("$[0].created[2]", is(16)))
+                .andExpect(jsonPath("$[0].created[3]", is(19)))
+                .andExpect(jsonPath("$[0].created[4]", is(40)))
                 .andExpect(jsonPath("$[0].items").isArray())
                 .andExpect(jsonPath("$[0].items[0].id", is(1)))
                 .andExpect(jsonPath("$[0].items[0].name", is("Karcher WD 2 Plus")))
@@ -150,7 +162,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void mustFindYourQueryWithAnswers() throws Exception {
-        when(itemRequestService.findYourQueryWithAnswers(1L, 1L))
+        when(itemRequestService.getRequestWithAnswers(1L, 1L))
                 .thenReturn(itemReqResponseDto2);
 
         mvc.perform(get("/requests/1")
@@ -161,7 +173,11 @@ public class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.description", is("Ищу строительный пылесос")))
                 .andExpect(jsonPath("$.userId", is(1)))
-                .andExpect(jsonPath("$.created", is("2025-07-16T19:40:00")))
+                .andExpect(jsonPath("$.created[0]", is(2025)))
+                .andExpect(jsonPath("$.created[1]", is(7)))
+                .andExpect(jsonPath("$.created[2]", is(16)))
+                .andExpect(jsonPath("$.created[3]", is(19)))
+                .andExpect(jsonPath("$.created[4]", is(40)))
                 .andExpect(jsonPath("$.items").isArray())
                 .andExpect(jsonPath("$.items[0].id", is(1)))
                 .andExpect(jsonPath("$.items[0].name", is("Karcher WD 2 Plus")));
@@ -169,7 +185,7 @@ public class ItemRequestControllerTest {
 
     @Test
     void mustReturn404IfItemRequestNotFound() throws Exception {
-        when(itemRequestService.findYourQueryWithAnswers(1L, 99L))
+        when(itemRequestService.getRequestWithAnswers(1L, 99L))
                 .thenThrow(new NotFoundException("Запрос не найден"));
 
         mvc.perform(get("/requests/99")

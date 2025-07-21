@@ -241,6 +241,10 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.text", is("Все хорошо!")))
                 .andExpect(jsonPath("$.authorName", is("Макс Иванов")))
-                .andExpect(jsonPath("$.created", is("2025-07-20T11:30:00")));
+                .andExpect(jsonPath("$.created[0]", is(2025)))
+                .andExpect(jsonPath("$.created[1]", is(7)))
+                .andExpect(jsonPath("$.created[2]", is(20)))
+                .andExpect(jsonPath("$.created[3]", is(11)))
+                .andExpect(jsonPath("$.created[4]", is(30)));
     }
 }
